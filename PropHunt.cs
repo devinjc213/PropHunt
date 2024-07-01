@@ -3,8 +3,8 @@ using CounterStrikeSharp.API.Core;
 using CounterStrikeSharp.API.Modules.Menu;
 using System.Text.Json.Serialization;
 using CounterStrikeSharp.API.Modules.Utils;
-using CounterStrikeSharp.API.Modules.Cvars;
 using CounterStrikeSharp.API.Modules.Timers;
+using System.Text.Json;
 
 namespace PropHunt;
 
@@ -23,11 +23,15 @@ public class PropHunt : BasePlugin, IPluginConfig<Config>
 
   public Config Config { get; set; } = null!;
   public void OnConfigParsed(Config config) { Config = config; }
-  private string _mapName = Server.MapName;
+
+  private List<CCSPlayerController> _players = new();
+  private Dictionary<CCSPlayerController, bool> _playerIsProp = new();
+  private Dictionary<CCSPlayerController, bool> _playerIsHunter = new();
+
   private float _currentYaw = 0f;
   private const float RotationThreshold = 45f;
 
-  private readonly Dictionary<string, string> _props = new(MapModels.maps["de_mills"]);
+  private readonly Dictionary<string, string> _props = new();
 
   public override void Load(bool hotReload)
   { 
@@ -45,6 +49,15 @@ public class PropHunt : BasePlugin, IPluginConfig<Config>
       }
     });
 
+    RegisterListener<Listeners.OnMapStart>(mapName =>
+    {
+      _props.Clear();
+      foreach (var model in LoadMapModels(mapName))
+      {
+        _props.Add(model.Key, model.Value);
+      }
+    });
+
     RegisterListener<Listeners.OnServerPrecacheResources>((manifest) => {
       foreach (var prop in _props)
       {
@@ -55,12 +68,7 @@ public class PropHunt : BasePlugin, IPluginConfig<Config>
       manifest.AddResource(charModel.Replace('/', Path.DirectorySeparatorChar));
     });
 
-    RegisterEventHandler<EventRoundStart>((@event, info) =>
-    {
-        HandleRoundStart();
-
-        return HookResult.Continue;
-    });
+    RegisterEventHandler<EventRoundStart>(HandleRoundStart);
 
     RegisterEventHandler<EventPlayerTeam>((@event, info) => 
     {
@@ -87,6 +95,15 @@ public class PropHunt : BasePlugin, IPluginConfig<Config>
           player.ChangeTeam(CsTeam.Terrorist);
         }
 
+        if (player.TeamNum == (int)CsTeam.Terrorist)
+        {
+          AddTimer(
+            0.1f,
+            () => UpdatePropRotation(player),
+            TimerFlags.REPEAT | TimerFlags.STOP_ON_MAPCHANGE
+          );
+        }
+
         return HookResult.Continue;
     });
 
@@ -105,20 +122,13 @@ public class PropHunt : BasePlugin, IPluginConfig<Config>
 
       // Client will crash if player dies as a non-player model.
       Server.NextFrame(() => {
-          playerPawn.SetModel("characters/models/tm_leet/tm_leet_varianta.vmdl");
+          if (playerPawn.IsValid)
+          {
+            playerPawn.SetModel("characters/models/tm_leet/tm_leet_varianta.vmdl");
+          }
       });
 
       return HookResult.Continue;
-    });
-
-    RegisterEventHandler<EventPlayerConnectFull>((@event, info)=>
-    {
-        var player = @event.Userid;
-        if (player == null || !player.IsValid || player.IsBot) return HookResult.Continue;
-
-        AddTimer(0.1f, () => UpdatePropRotation(player), TimerFlags.REPEAT | TimerFlags.STOP_ON_MAPCHANGE);
-
-        return HookResult.Continue;
     });
 
     Console.WriteLine("PropHunt loaded.");
@@ -145,7 +155,7 @@ public class PropHunt : BasePlugin, IPluginConfig<Config>
     MenuManager.OpenChatMenu(player, menu);
   }
 
-  public void HandleRoundStart()
+  private HookResult HandleRoundStart(EventRoundStart @event, GameEventInfo info)
   {
     var bombEntities = Utilities.FindAllEntitiesByDesignerName<CC4>("weapon_c4");
 
@@ -155,28 +165,36 @@ public class PropHunt : BasePlugin, IPluginConfig<Config>
       if (bomb != null) bomb.Remove();
     }
 
-    Server.ExecuteCommand("sv_cheats 1");
     Utilities.GetPlayers().ForEach(player =>
     {
       if (player.IsBot || !player.IsValid || !player.PawnIsAlive) return;
 
       if (player.TeamNum == (int)CsTeam.Terrorist)
       {
-        var thirdperson = ConVar.Find("thirdperson");
-        if (thirdperson != null) thirdperson.SetValue(true);
-
-        var thirdpersonMaya = ConVar.Find("thirdperson_mayamode");
-        if (thirdpersonMaya != null) thirdpersonMaya.SetValue(true);
-
         player.RemoveWeapons();
       }
       else if (player.TeamNum == (int)CsTeam.CounterTerrorist)
       {
         player.RemoveWeapons();
         player.GiveNamedItem("weapon_knife");
+        AddTimer(0.1f, () => { LockHunterInPlace(player); });
       }
     });
-    Server.ExecuteCommand("sv_cheats 0");
+
+    return HookResult.Continue;
+  }
+
+  public void LockHunterInPlace(CCSPlayerController player)
+  {
+    if (player == null || !player.IsValid || !player.PawnIsAlive || player.TeamNum != (int)CsTeam.CounterTerrorist) return;
+
+    var playerPawn = player.PlayerPawn.Value;
+    if (playerPawn == null) return;
+
+    var position = playerPawn.AbsOrigin;
+    var lookDown = new QAngle(0, 0, 0);
+
+    playerPawn.Teleport(position, lookDown, null);
   }
 
   public void UpdatePropRotation(CCSPlayerController player)
@@ -208,6 +226,24 @@ public class PropHunt : BasePlugin, IPluginConfig<Config>
 
       playerPawn.Teleport(position, newAngles, null);
     }
+  }
+  
+  public Dictionary<string, string> LoadMapModels(string mapName)
+  {
+    string filePath = Path.Combine(ModuleDirectory, "models", $"{mapName}.json");
+    if (File.Exists(filePath))
+    {
+      string json = File.ReadAllText(filePath);
+      return JsonSerializer.Deserialize<Dictionary<string, string>>(json);
+    }
 
+    filePath = Path.Combine(ModuleDirectory, "models", "default.json");
+    if (File.Exists(filePath))
+    {
+      string json = File.ReadAllText(filePath);
+      return JsonSerializer.Deserialize<Dictionary<string, string>>(json);
+    }
+
+    return new Dictionary<string, string>();
   }
 }

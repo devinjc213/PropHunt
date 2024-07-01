@@ -1,0 +1,9 @@
+{
+  "Soccer Ball": "models/props/de_dust/hr_dust/dust_soccerball/dust_soccer_ball001.vmdl",
+  "Cardboard Trash": "models/props/ar_dizzy/dizzy_trash/dizzy_cardboard_trash_02.vmdl",
+  "Dead Chicken": "models/props/cs_italy/dead_chicken.vmdl",
+  "Snowman Head": "models/props/cs_office/snowman_head.vmdl",
+  "Crate": "models/props/de_dust/hr_dust/dust_crates/dust_crate_style_02_72x36x72b_tarp.vmdl",
+  "Trash Bag": "models/props/de_dust/hr_dust/dust_garbage_container/dust_trash_bag.vmdl",
+  "Patio Umbrella (Closed)": "models/props/de_dust/hr_dust/dust_patio_set/dust_patio_umbrella_closed.vmdl"
+}

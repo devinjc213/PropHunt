@@ -1,0 +1,12 @@
+{
+  "Potted Plant": "models/props/de_dust/hr_dust/foliage/potted_plant_04.vmdl",
+  "Sage Bush": "models/props/de_dust/hr_dust/foliage/sage_bush_02.vmdl",
+  "Bar Stool": "models/generic/barstool_01/barstool_01.vmdl", 
+  "Street Bench": "models/de_overpass/street/street_bench_1/street_bench_1.vmdl",
+  "Garbage Can": "models/de_overpass/park/garbage_can/garbage_can.vmdl",
+  "Patio Chair": "models/de_overpass/patio_chair/patio_chair.vmdl",
+  "Tarp": "models/de_overpass/junk/tarp_01/tarp_01.vmdl",
+  "Wood Crate": "models/de_overpass/crate/wood_crate_covered_1.vmdl",
+  "Plastic Barrel": "models/de_overpass/construction/plastic_barrel/plastic_barrel_1.vmdl",
+  "Hand Trolley": "models/de_overpass/construction/hand_trolley/hand_trolley.vmdl"
+}
