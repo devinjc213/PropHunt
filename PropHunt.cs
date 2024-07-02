@@ -172,7 +172,7 @@ public class PropHunt : BasePlugin, IPluginConfig<Config>
         if (bombEntities.Any())
         {
             var bomb = bombEntities.FirstOrDefault();
-            if (bomb != null) bomb.Remove();
+            bomb!.Remove();
         }
 
         Utilities.GetPlayers().ForEach(player =>
@@ -300,14 +300,14 @@ public class PropHunt : BasePlugin, IPluginConfig<Config>
         if (File.Exists(filePath))
         {
             string json = File.ReadAllText(filePath);
-            return JsonSerializer.Deserialize<Dictionary<string, string>>(json);
+            return JsonSerializer.Deserialize<Dictionary<string, string>>(json)!;
         }
 
         filePath = Path.Combine(ModuleDirectory, "models", "default.json");
         if (File.Exists(filePath))
         {
             string json = File.ReadAllText(filePath);
-            return JsonSerializer.Deserialize<Dictionary<string, string>>(json);
+            return JsonSerializer.Deserialize<Dictionary<string, string>>(json)!;
         }
 
         return new Dictionary<string, string>();
