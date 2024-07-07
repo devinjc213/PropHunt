@@ -1,0 +1,15 @@
+{
+  "Cable Spool": "models/de_overpass/cable_spool/mesh/cable_spool.vmdl",
+  "Ladder Stand": "models/de_overpass/construction/ladder/ladder_stand_1.vmdl",
+  "Power Drill": "models/de_overpass/construction/power_drill/power_drill_1.vmdl",
+  "Traffic Cone": "models/de_overpass/construction/traffic_cone_2.vmdl",
+  "Wet Floor Sign": "models/de_overpass/decorations/wet_floor_sign/wet_floor_sign_1.vmdl",
+  "Industrial Shelf": "models/de_overpass/industrial/industrial_shelf/industrial_shelf_1.vmdl",
+  "Fuse Box": "models/de_overpass/overpass_fuse_box/overpass_fuse_box_04.vmdl",
+  "Generator": "models/de_overpass/overpass_generator/overpass_generator.vmdl",
+  "Propane Tank": "models/props/de_dust/hr_dust/dust_propane_tanks/propane_tank_01.vmdl",
+  "Catwalk Support": "models/props/de_nuke/hr_nuke/catwalk_support_001/catwalk_support_001b.vmdl",
+  "Hard Hat": "models/props/de_nuke/hr_nuke/nuke_hard_hat/nuke_hard_hat.vmdl",
+  "Office Chair": "models/props/de_nuke/hr_nuke/nuke_office_chair/nuke_office_chair.vmdl",
+  "Whiteboard": "models/props/de_nuke/hr_nuke/nuke_office_desk/nuke_whiteboard.vmdl"
+}
